@@ -31,13 +31,13 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
 3. Build the docker image
 
     ```text
-    docker build --no-cache -t scrobbler ..
+    cd .. && docker build --no-cache -t scrobbler .
     ```
 
 4. Spin up a container from this new image
 
     ```text
-    cd .. && docker run -v "$(pwd)"/env:/env -p 4000:80 -td --name scrobbler_container scrobbler
+    docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler_container scrobbler
     ```
 
 ## Usage

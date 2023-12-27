@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 80
 
 # Run start.sh after the container starts
-CMD ["sh", "start.sh"]
+CMD ["sh", "/scrobbler/start.sh"]
