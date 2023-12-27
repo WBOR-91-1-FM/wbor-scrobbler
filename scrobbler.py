@@ -23,7 +23,6 @@ import requests as r
 import signal
 import sys
 import time
-import webbrowser
 import xml.etree.ElementTree as ET
 
 LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/"
@@ -43,7 +42,7 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(name)-4s %(levelname)s \n%(message)s\n")
 
 def signal_handler(sig, frame):
-    print("Ctrl+C pressed, closing. Goodbye!")
+    print("\nCtrl+C pressed, aborting application. Goodbye!")
     sys.exit(0)
 
 def generate_signature(params):
@@ -93,7 +92,13 @@ def get_session_key(token):
 
     response = r.post(LASTFM_API_URL, params=params)
     root = ET.fromstring(response.content)
-    return root.find("./session/key").text
+    session_key_element = root.find("./session/key")
+    if session_key_element is None:
+        print("\nSession key not returned from Last.fm. Did you open the link above and press \"yes, allow access?\" Aborting setup.")
+        sys.exit(0)
+    
+    session_key = session_key_element.text
+    return session_key
 
 def update_np(session_key, artist, track, album=None, duration=None):
     """Performs API call to track.updateNowPlaying to indicate to Last.fm that the user has started listening to a new track
@@ -193,27 +198,30 @@ def setup():
 
     # Prompt user to authorize for their account
     link = f"http://www.last.fm/api/auth/?api_key={lastfm_api_key}&token={token}"
-    print(f"You should be redirected to a Last.fm page where you can authorize this application for your account. If not, please go here to do so: {link}")
-    webbrowser.open(link)
+    print(f"You need to authorize this application with your Last.fm account. To do so, visit the following link. Click \"yes, allow access.\" \n\n{link}\n")
     
     # Wait for user to confirm that they have authorized before proceeding
     confirmation = ''
-    print("Please enter 'Y' to confirm once you have authorized the application for your account, or enter 'x' to cancel.")
-    while confirmation != 'Y':
+    print("Please enter 'y' to after you have authorized this application with your Last.fm account:")
+    while confirmation != 'y':
         confirmation = input()
-        if confirmation.lower() == 'x':
-            print("Exiting. Goodbye!")
+        if confirmation.lower() != 'y':
+            print("Did not receive 'y' - aborting setup...")
             sys.exit(0)
     
     session_key = get_session_key(token)
-    print(f"Your session key is {session_key}")
+    print("\nSuccess!")
+    
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open('/scrobbler/setup_done', 'w') as setup_done_file:
+            setup_done_file.write(f'Setup completed at {current_time}')
 
     return session_key
 
 def run():
     """Execution to run when the user has already established a web service session"""
     
-    print("Last.fm Spinitron scrobbler running.")
+    print("Last.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n")
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
@@ -232,28 +240,27 @@ def run():
         if (time_difference > 0) and (spin_id != last_spin_id):
             miss_count = 0
 
-            print("Making Now Playing request")
+            print("Making Last.fm Now Playing request for new spin.")
             update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
 
             # Last.fm asks that we only scrobbly songs longer than 30 seconds
             if current_spin["duration"] > 30:
                 # Idle until end of song, then make scrobble request
                 time.sleep(time_difference)
-                print("Making scrobble request")
+                print("Song finished playing. Making scrobble request.")
                 request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
             else:
                 too_short_str = f"Song length too short to scrobble. Waiting for {time_difference} seconds..."
                 print(too_short_str)
                 logging.info(too_short_str)
-                time.sleep(time_difference) # Idle until end of song
+                time.sleep(time_difference) # Idle until end of current song
             
             time.sleep(5)
 
         else:
-            # Miss - loop has run without a new spin
-            miss_count += 1
+            miss_count += 1 # Miss - loop has run without a new spin
 
-            # If miss occurs > 10 times in a row, idle for 5 minutes before next loop
+            # If miss occurs > 10 times in a row (approx 6 minutes), idle for 5 minutes before next loop
             if miss_count > 10:
                 miss_str = f"{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 5 minutes before next request."
                 print(miss_str)
@@ -278,17 +285,21 @@ if __name__ == '__main__':
         print("Please make sure you have set your LASTFM_API_KEY, LASTFM_API_SECRET, and SPINITRON_API_KEY values in the \".env\" file.")
     else:
         if args.setup:
-            # If setup flag was set, run setup first, then set the obtained session key in the .env file and run main execution
-            new_session_key = setup()
-            set_key(".env", "LASTFM_SESSION_KEY", new_session_key)
-            load_dotenv()
-            lastfm_session_key = os.getenv("LASTFM_SESSION_KEY")
-            run()
+            # If setup flag was used, run setup, then set the obtained session key in the .env file and run()
+            if not os.path.exists('/scrobbler/setup_done'):
+                new_session_key = setup()
+                set_key(".env", "LASTFM_SESSION_KEY", new_session_key)
+                load_dotenv()
+                lastfm_session_key = os.getenv("LASTFM_SESSION_KEY")
+                print("LASTFM_SESSION_KEY automatically set in .env\n")
+                sys.exit(0)
+            else:
+                print("Setup was done previously. Aborting...")
+                sys.exit(0)
         else:
             # Check if session key variable is not present or left as example value
             if (not lastfm_session_key) or all(char == 'x' for char in lastfm_session_key.lower()):
                 print("Please make sure you have set your LASTFM_SESSION_KEY value in the \".env\" file. If you have not yet established a web service session, please run the script in setup mode using the --setup argument.")
+                sys.exit(0)
             else:
                 run()
-
-
