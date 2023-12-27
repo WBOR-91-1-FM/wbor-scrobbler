@@ -12,10 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 80
 
 # Check if /env/setup_done exists
-RUN if [ -e /env/setup_done ]; then \
-    echo "Setup already done. Running."; \
-    CMD ["python", "scrobbler.py"] \
+CMD if [ -e /env/setup_done ]; then \
+    echo "Starting scrobbler." && python scrobbler.py; \
 else \
-    echo "Setup not done."; \
-    CMD [] \
+    echo "Setup needs to be completed." && exit 1; \
 fi
