@@ -10,23 +10,17 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
 
 ## Installation
 
-1. Clone this repository to your desired destination and then cd into it.
+1. Run this command
 
     ```text
-    git clone https://github.com/mdrxy/wbor-scrobbler.git && cd wbor-scrobbler
+    git clone https://github.com/mdrxy/wbor-scrobbler.git && cd wbor-scrobbler && cd env && nano .env
     ```
 
-2. Within the newly cloned repo folder, make a folder called env and then cd into the folder. Inside env, create the file `.env`
-
-    ```text
-    mkdir env && cd env && nano .env
-    ```
-
-3. Enter the following values (in the format `KEY=VAL` seperated by newline):
+2. Enter the following values (in the format `KEY=VAL` seperated by newline):
     * LASTFM_API_KEY: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "API Key"
     * LASTFM_API_SECRET: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "Shared Secret"
     * SPINITRON_API_KEY: Found on the [Spinitron automation and API page](https://spinitron.com/station/automation/panel) under "API Key"
-    * The resulting `.env` shoud look similar to the following:
+    * The resulting `.env` file shoud look similar to the following:
 
         ```text
         LASTFM_API_KEY=ABCDEFG
@@ -34,13 +28,13 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
         SPINITRON_API_KEY=OPQRSTU
         ```
 
-4. Build the docker image
+3. Build the docker image
 
     ```text
     docker build --no-cache -t scrobbler ..
     ```
 
-5. Spin up a container from this new image
+4. Spin up a container from this new image
 
     ```text
     cd .. && docker run -v "$(pwd)"/env:/env -p 4000:80 -td --name scrobbler_container scrobbler
