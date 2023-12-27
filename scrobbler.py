@@ -213,7 +213,7 @@ def setup():
 def run():
     """Execution to run when the user has already established a web service session"""
     
-    print("Running.")
+    print("Last.fm Spinitron scrobbler running.")
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
@@ -232,7 +232,7 @@ def run():
         if (time_difference > 0) and (spin_id != last_spin_id):
             miss_count = 0
 
-            print("Making NP request")
+            print("Making Now Playing request")
             update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
 
             # Last.fm asks that we only scrobbly songs longer than 30 seconds
