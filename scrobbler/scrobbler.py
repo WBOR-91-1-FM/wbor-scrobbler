@@ -28,7 +28,7 @@ import xml.etree.ElementTree as ET
 LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/"
 
 # Pull env variables
-load_dotenv()
+load_dotenv(dotenv_path='/env/.env')
 lastfm_api_key = os.getenv("LASTFM_API_KEY")
 lastfm_api_secret = os.getenv("LASTFM_API_SECRET")
 lastfm_session_key = os.getenv("LASTFM_SESSION_KEY")
@@ -289,7 +289,7 @@ if __name__ == '__main__':
             if not os.path.exists('/scrobbler/setup_done'):
                 new_session_key = setup()
                 set_key(".env", "LASTFM_SESSION_KEY", new_session_key)
-                load_dotenv()
+                load_dotenv(dotenv_path='/env/.env')
                 lastfm_session_key = os.getenv("LASTFM_SESSION_KEY")
                 print("LASTFM_SESSION_KEY automatically set in .env\n")
                 sys.exit(0)

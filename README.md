@@ -10,18 +10,27 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
 
 ## Installation
 
-Execute 'pip install -r requirements.txt' to install packages
-Execute 'python scrobbler.py --setup'
-When prompted, authorize the application while logged into the wbor Last.fm account
+1. Clone this repository to your desired destination
+2. At this destination, make a folder called env
+3. In this folder, create the file `.env` and enter the following values (in the format `KEY=VAL`):
+    * LASTFM_API_KEY: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "API Key"
+    * LASTFM_API_SECRET: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "Shared Secret"
+    * SPINITRON_API_KEY: Found on the [Spinitron automation and API page](https://spinitron.com/station/automation/panel) under "API Key"
+    * The resulting `.env` shoud look similar to the following:
 
-* .env file with the following values:
-  * LASTFM_API_KEY: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "API Key"
-  * LASTFM_API_SECRET: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "Shared Secret"
-  * SPINITRON_API_KEY: Found on the [Spinitron automation and API page](https://spinitron.com/station/automation/panel) under "API Key"
+        ```text
+        LASTFM_API_KEY=ABCDEFG
+        LASTFM_API_SECRET=HIJKLMN
+        SPINITRON_API_KEY=OPQRSTU
+        ```
+      
+
+
+Build the docker image by running `docker build -t scrobbler .`
+
+Spin up a container from this new image by running `docker run -v /var/scrobbler/env:/env -p 4000:80 --name scrobbler_container scrobbler`
+
 
 ## Usage
 
-After initial setup, to begin scrobbling, simply:
 
-1. Navigate to the project folder in a terminal
-2. Execute 'python scrobbler.py'

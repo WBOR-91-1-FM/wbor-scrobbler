@@ -1,10 +1,6 @@
 #!/bin/bash
 
-# Check if the setup has been done
-if [ ! -e /scrobbler/setup_done ]; then
-    # Perform setup
-    python scrobbler.py --setup
-fi
+python scrobbler.py --setup
 
 while [ ! -e "/scrobbler/setup_done" ]; do
     echo "Waiting for setup to complete..."
