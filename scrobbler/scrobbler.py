@@ -198,7 +198,7 @@ def setup():
 
     # Prompt user to authorize for their account
     link = f"http://www.last.fm/api/auth/?api_key={lastfm_api_key}&token={token}"
-    print(f"You need to authorize this application with your Last.fm account. To do so, visit the following link. Click \"yes, allow access.\" \n\n{link}\n")
+    print(f"\nYou need to authorize this application with your Last.fm account. To do so, visit the following link. Click \"yes, allow access.\" \n\n{link}\n")
     
     # Wait for user to confirm that they have authorized before proceeding
     confirmation = ''
@@ -214,7 +214,7 @@ def setup():
     
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open('/env/setup_done', 'w') as setup_done_file:
-            setup_done_file.write(f'Setup completed at {current_time}')
+            setup_done_file.write(f'Setup completed at {current_time}\n')
 
     return session_key
 
@@ -290,11 +290,6 @@ if __name__ == '__main__':
                 new_session_key = setup()
                 set_key("/env/.env", "LASTFM_SESSION_KEY", new_session_key)
                 load_dotenv(dotenv_path='/env/.env')
-                    
-                with open("/env/.env", "r") as env_file:
-                    env_contents = env_file.read()
-                    print(f"Updated /env/.env file:\n{env_contents}")
-                
                 lastfm_session_key = os.getenv("LASTFM_SESSION_KEY")
                 print("LASTFM_SESSION_KEY automatically set in .env\n")
                 sys.exit(0)

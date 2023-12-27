@@ -2,17 +2,16 @@
 
 # If setup hasn't been completed
 if [ ! -e /env/setup_done ]; then
-    echo "Running initial setup..."
+    echo "start.sh: Running initial setup..."
     python scrobbler.py --setup
     
     if [ -e /env/setup_done ]; then
-        echo "Setup completed successfully."
+        echo "start.sh: Setup completed successfully. Reboot the container to begin runnning scrobbler."
     else
-        echo "Setup failed. Please check the logs for details."
+        echo "start.sh: Setup failed. Please check the logs for details."
         exit 1
     fi
 fi
 
-# Start the scrobbler
-echo "Starting scrobbler."
+# Assuming setup has been done, start the scrobbler
 exec python scrobbler.py
