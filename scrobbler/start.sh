@@ -1,13 +1,18 @@
 #!/bin/bash
 
-while true; do
+# If setup hasn't been completed
+if [ ! -e /env/setup_done ]; then
+    echo "Running initial setup..."
+    python scrobbler.py --setup
+    
     if [ -e /env/setup_done ]; then
-        echo "Starting scrobbler."
-        exec python scrobbler.py
+        echo "Setup completed successfully."
     else
-        echo "Setup needs to be completed."
+        echo "Setup failed. Please check the logs for details."
+        exit 1
     fi
+fi
 
-    # Optional: Add a sleep to avoid high CPU usage in the loop
-    sleep 5
-done
+# Start the scrobbler
+echo "Starting scrobbler."
+exec python scrobbler.py
