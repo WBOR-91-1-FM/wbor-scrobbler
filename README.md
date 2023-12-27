@@ -28,7 +28,7 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
 
 Build the docker image by running `docker build -t scrobbler .`
 
-Spin up a container from this new image by running `docker run -v /var/scrobbler/env:/env -p 4000:80 --name scrobbler_container scrobbler`
+Spin up a container from this new image by running `docker run -v "$(pwd)"/env:/env -p 4000:80 --name scrobbler_container scrobbler`
 
 
 ## Usage

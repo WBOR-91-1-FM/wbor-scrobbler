@@ -213,7 +213,7 @@ def setup():
     print("\nSuccess!")
     
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open('/scrobbler/setup_done', 'w') as setup_done_file:
+    with open('/env/setup_done', 'w') as setup_done_file:
             setup_done_file.write(f'Setup completed at {current_time}')
 
     return session_key
