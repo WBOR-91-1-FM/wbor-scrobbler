@@ -288,12 +288,8 @@ if __name__ == '__main__':
             # If setup flag was used, run setup, then set the obtained session key in the .env file and run()
             if not os.path.exists('/scrobbler/setup_done'):
                 new_session_key = setup()
-                set_key(".env", "LASTFM_SESSION_KEY", new_session_key)
+                set_key("/env/.env", "LASTFM_SESSION_KEY", new_session_key)
                 load_dotenv(dotenv_path='/env/.env')
-                
-                with open(".env", "r") as env_file:
-                    env_contents = env_file.read()
-                    print(f"Updated .env file:\n{env_contents}")
                     
                 with open("/env/.env", "r") as env_file:
                     env_contents = env_file.read()
