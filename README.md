@@ -10,7 +10,7 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
 
 ## Installation
 
-1. Clone this repository to your desired destination and then cd into it. `cd wbor-scrobbler`
+1. Clone this repository to your desired destination and then cd into it. `git clone https://github.com/mdrxy/wbor-scrobbler.git && cd wbor-scrobbler`
 2. Within the newly cloned repo folder, make a folder called env and then cd into the folder. Inside env, create the file `.env` -- `mkdir env && cd env && nano .env`
 3. Enter the following values (in the format `KEY=VAL` seperated by newline):
     * LASTFM_API_KEY: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "API Key"

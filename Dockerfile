@@ -15,5 +15,5 @@ EXPOSE 80
 CMD if [ -e /env/setup_done ]; then \
     echo "Starting scrobbler." && python scrobbler.py; \
 else \
-    echo "Setup needs to be completed." \
+    echo "Setup needs to be completed."; \
 fi
