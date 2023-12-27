@@ -10,7 +10,7 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
 
 ## Installation
 
-1. Run this command
+1. Navigate to the directory you want to setup in, and then run:
 
     ```text
     git clone https://github.com/mdrxy/wbor-scrobbler.git && cd wbor-scrobbler && cd env && nano .env
@@ -23,22 +23,26 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
     * The resulting `.env` file shoud look similar to the following:
 
         ```text
-        LASTFM_API_KEY=ABCDEFG
-        LASTFM_API_SECRET=HIJKLMN
-        SPINITRON_API_KEY=OPQRSTU
+        LASTFM_API_KEY=fndvnbufhjbkcxghudf
+        LASTFM_API_SECRET=vbhcxjbvdkslgnmkjdsn
+        SPINITRON_API_KEY=eriugdfnjkgbdfjk
         ```
 
-3. Build the docker image
+    * Once you've entered these, press `ctrl + x` and then enter `y` then `enter` to save.
+
+3. Build the docker image. Run:
 
     ```text
     cd .. && docker build --no-cache -t scrobbler .
     ```
 
-4. Spin up a container from this new image
+4. Assuming the image was built successfully, you can now spin up a container to complete setup. Run:
 
     ```text
     docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler scrobbler
     ```
+
+5. Navigate to the Last.fm url presented (in some terminals you can cmd + click the URL) and authorize the application by pressing "allow access." Return to the terminal and enter `y` followed by `enter`
 
 ## Usage
 

@@ -2,13 +2,14 @@
 
 # If setup hasn't been completed
 if [ ! -e /env/setup_done ]; then
-    echo "start.sh: Running initial setup..."
+    echo -e "\e[34mstart.sh: Running initial setup...\e[0m"
     python scrobbler.py --setup
     
     if [ -e /env/setup_done ]; then
-        echo "start.sh: Setup completed successfully. Reboot the container to begin runnning scrobbler."
+        echo -e "\e[34mstart.sh: Setup completed successfully. Reboot the container to begin running scrobbler.\e[0m"
+        exit 0
     else
-        echo "start.sh: Setup failed. Please check the logs for details."
+        echo -e "\e[91mstart.sh: Setup failed. Please check the logs for details.\e[0m"
         exit 1
     fi
 fi

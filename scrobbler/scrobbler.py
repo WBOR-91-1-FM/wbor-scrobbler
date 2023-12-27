@@ -291,7 +291,7 @@ if __name__ == '__main__':
                 set_key("/env/.env", "LASTFM_SESSION_KEY", new_session_key)
                 load_dotenv(dotenv_path='/env/.env')
                 lastfm_session_key = os.getenv("LASTFM_SESSION_KEY")
-                print("LASTFM_SESSION_KEY automatically set in .env\n")
+                print("LASTFM_SESSION_KEY automatically set in /env/.env\n")
                 sys.exit(0)
             else:
                 print("Setup was done previously. Aborting...")
