@@ -37,7 +37,7 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
 4. Spin up a container from this new image
 
     ```text
-    docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler_container scrobbler
+    docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler scrobbler
     ```
 
 ## Usage
