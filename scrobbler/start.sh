@@ -6,7 +6,8 @@ if [ ! -e /env/setup_done ]; then
     python scrobbler.py --setup
     
     if [ -e /env/setup_done ]; then
-        printf "\e[34mstart.sh: Setup completed successfully. Reboot the container to begin running scrobbler.\e[0m\n"
+        printf "\e[34mstart.sh: Setup completed successfully.\e[0m\n"
+        printf "\e[34mstart.sh: Scrobbler started in background.\e[0m\n"
         exit 0
     else
         printf "\e[91mstart.sh: Setup failed.\e[0m\n"
