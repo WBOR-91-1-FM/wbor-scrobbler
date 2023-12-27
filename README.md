@@ -46,4 +46,4 @@ This is a program that uses the Spinitron and Last.fm APIs to take now-playing s
 
 ## Usage
 
-
+* To stop scrobbling, run `docker stop scrobbler`
