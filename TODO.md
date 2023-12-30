@@ -1,3 +1,3 @@
 # TODO
 
-* Detailed verbose script output
+* Verbose script output for running in foreground.
