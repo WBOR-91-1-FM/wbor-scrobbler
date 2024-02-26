@@ -254,7 +254,7 @@ def run():
         current_hour = current_datetime.hour
         time_difference = (song_end_datetime - current_datetime).total_seconds()
 
-        if not (start_hour <= current_hour < end_hour):
+        if not ((start_hour <= current_hour < end_hour) or (start_hour > end_hour and (current_hour >= start_hour or current_hour < end_hour))):
             sleep_duration = get_sleep_duration(start_hour)
             print(f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...")
             time.sleep(sleep_duration)
