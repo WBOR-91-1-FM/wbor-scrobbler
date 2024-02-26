@@ -37,16 +37,27 @@ After you've gone through the following setup process once, you theoretically sh
 
     * Once entered, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
 
-3. Build the docker image. Run:
+3. Set a scrobbling schedule. By default, it is set to scrobble 24/7, but you can choose a block of time to start/stop scrobbling. Run:
+
+    ```text
+    cd .. && cd scrobbler && nano schedule.json
+    ```
+
+    * Navigates to the repo's assets folder and opens nano to modify the schdeule.
+    * **NOTE:** you are not locked in to this schedule and can [change it at a later date](#changing-the-scrobble-schedule) if you choose.
+    * If you are content scrobbling 24 hours a day, press <kbd>ctrl</kbd> + <kbd>x</kbd> and move on to step #4.
+    * If you are defining a custom schedule, change the start and end hour, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
+
+4. Build the docker image. Run:
 
     ```text
     cd .. && docker build --no-cache -t scrobbler .
     ```
 
-    * Navigates to the repo's root folder and creates a Docker image titled `scrobbler`
+    * Navigates to the repo's root folder and creates a Docker image titled `scrobbler`.
         * You are free to give the image a title other than `scrobbler` but note that you will need to adjust the code in the following steps accordingly.
 
-4. Assuming the image was built successfully, you can now spin up a container to complete setup. Run:
+5. Assuming the image was built successfully, you can now spin up a container to complete setup. Run:
 
     ```text
     docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler --restart unless-stopped scrobbler
@@ -56,15 +67,37 @@ After you've gone through the following setup process once, you theoretically sh
     * In the case of a server reboot or a script failure, the container `scrobbler` will immediately restart, and will continue to do so unless you explicitly stop the container (more below).
     * Maps to external port 4000 by default, however you can change this as needed depending on your installation environment.
 
-5. Navigate to the Last.fm url presented to you (in some terminals you can cmd + click the URL) and authorize the application by pressing "allow access." Return to the terminal and enter <kbd>y</kbd> followed by <kbd>enter</kbd>.
+6. Navigate to the Last.fm url presented to you (in some terminals you can cmd + click the URL) and authorize the application by pressing "allow access." Return to the terminal and enter <kbd>y</kbd> followed by <kbd>enter</kbd>.
 
-6. Following setup, the container `scrobbler` will immediately begin running in the background, so no further action is required!
+7. Following setup, the container `scrobbler` will immediately begin running in the background, so no further action is required!
 
 ## Usage
+
+### Start/Stop
 
 * To stop/start the script's container for any reason, run `docker stop scrobbler` and `docker start scrobbler` respectively.
   * Scrobbling is started in the background by default. If you want to run it in the foreground to see realtime output from the script (to see what's happening), add the `-i` flag between `start` and `scrobbler`. NOTE: once you've started `scrobbler` in the foreground, the only way to hide its output again is to stop the process and start it without the `-i` flag.
 * Like mentioned in part 4 of "Installation & Setup," in the case of a server reboot or a script failure, the container `scrobbler` will immediately restart without needing to run through the setup process again.
+
+### Changing the Scrobble Schedule
+
+1. Enter the currently running wbor-scrobbler container. Run:
+
+   ```text
+   docker exec -it scrobbler /bin/bash
+   ```
+
+   * Opens the container's shell.
+
+2. Edit `schedule.json`. Run:
+
+   ```text
+   nano schedule.json
+   ```
+
+   * Choose hours to start and stop scrobbling. These should be in 24-hour format. E.g. 1 PM should be entered as 13 for 13:00. No other integers other than 0-24 are permitted. Once done, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
+   * You can now run `exit` to escape the container's CLI.
+   * Profit! The change will take effect immediately.
 
 ## Troubleshooting
 
