@@ -256,7 +256,7 @@ def run():
 
         if not (start_hour <= current_hour < end_hour):
             sleep_duration = get_sleep_duration(start_hour)
-            print(f"OUTSIDE SCHEDULED SCROBBLING HOURS. Sleeping for next {sleep_duration} seconds...")
+            print(f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...")
             time.sleep(sleep_duration)
         else:
             # Check if a new song is playing
