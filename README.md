@@ -44,7 +44,8 @@ After you've gone through the following setup process once, you theoretically sh
     ```
 
     * Navigates to the repo's assets folder and opens nano to modify the schdeule.
-    * **NOTE:** you are not locked in to this schedule and can [change it at a later date](#changing-the-scrobble-schedule) if you choose.
+    * **NOTE:** times are in UTC. Use a [conversion tool](https://www.worldtimebuddy.com/) to find your time zone in UTC.
+    * You are not locked in to this schedule and can [change it at a later date](#changing-the-scrobble-schedule) if you choose.
     * If you are content scrobbling 24 hours a day, press <kbd>ctrl</kbd> + <kbd>x</kbd> and move on to step #4.
     * If you are defining a custom schedule, change the start and end hour, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
 
@@ -76,7 +77,7 @@ After you've gone through the following setup process once, you theoretically sh
 ### Start/Stop
 
 * To stop/start the script's container for any reason, run `docker stop scrobbler` and `docker start scrobbler` respectively.
-  * Scrobbling is started in the background by default. If you want to run it in the foreground to see realtime output from the script (to see what's happening), add the `-i` flag between `start` and `scrobbler`. NOTE: once you've started `scrobbler` in the foreground, the only way to hide its output again is to stop the process and start it without the `-i` flag.
+  * Scrobbling is started in the background by default. If you want to run it in the foreground to see realtime output from the script (to see what's happening), run `docker start -i scrobbler`. NOTE: once you've started `scrobbler` in the foreground, the only way to hide its output again is to stop the process and start it again without the `-i` flag.
 * Like mentioned in part 4 of "Installation & Setup," in the case of a server reboot or a script failure, the container `scrobbler` will immediately restart without needing to run through the setup process again.
 
 ### Changing the Scrobble Schedule
