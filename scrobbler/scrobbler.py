@@ -23,6 +23,7 @@ import requests as r
 import signal
 import sys
 import time
+import json
 import xml.etree.ElementTree as ET
 
 LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/"
@@ -33,6 +34,12 @@ lastfm_api_key = os.getenv("LASTFM_API_KEY")
 lastfm_api_secret = os.getenv("LASTFM_API_SECRET")
 lastfm_session_key = os.getenv("LASTFM_SESSION_KEY")
 spinitron_api_key = os.getenv("SPINITRON_API_KEY")
+
+with open('schedule.json', 'r') as f:
+    config = json.load(f)
+
+start_hour = config.get('start_hour')
+end_hour = config.get('end_hour')
 
 spinitron_headers={"Authorization": f"Bearer {spinitron_api_key}"}
 
@@ -245,10 +252,15 @@ def run():
 
             # Last.fm asks that we only scrobbly songs longer than 30 seconds
             if current_spin["duration"] > 30:
-                # Idle until end of song, then make scrobble request
-                time.sleep(time_difference)
-                print("Song finished playing. Making scrobble request.")
-                request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
+                current_hour = current_datetime.hour
+                
+                if start_hour <= current_hour < end_hour:
+                    # Idle until end of song, then make scrobble request
+                    time.sleep(time_difference)
+                    print("Song finished playing. Making scrobble request.")
+                    request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
+                else:
+                    print("Current time is outside scrobble hours. Skipping scrobble.")
             else:
                 too_short_str = f"Song length too short to scrobble. Waiting for {time_difference} seconds..."
                 print(too_short_str)
