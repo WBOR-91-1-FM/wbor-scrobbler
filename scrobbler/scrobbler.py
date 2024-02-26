@@ -109,13 +109,13 @@ def get_session_key(token):
 
 def get_sleep_duration(start_hour):
     """Gets the remaining time in seconds until start_hour to sleep until"""
-    current_time = datetime.datetime.now()
-    desired_time = current_time.replace(hour=start_hour, minute=0, second=0, microsecond=0)
-    if desired_time < current_time:
+    current_datetime = datetime.utcnow().replace(tzinfo=tz.UTC)
+    desired_time = current_datetime.replace(hour=start_hour, minute=0, second=0, microsecond=0)
+    if desired_time < current_datetime:
         # If the desired start time is already passed for today,
         # set it for the next day
         desired_time += datetime.timedelta(days=1)
-    return (desired_time - current_time).total_seconds()
+    return (desired_time - current_datetime).total_seconds()
 
 def update_np(session_key, artist, track, album=None, duration=None):
     """Performs API call to track.updateNowPlaying to indicate to Last.fm that the user has started listening to a new track
