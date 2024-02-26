@@ -246,12 +246,12 @@ def run():
     while True:
         # Get most recent spin info from Spinitron
         current_spin = r.get("https://spinitron.com/api/spins?count=1", headers=spinitron_headers).json()["items"][0]
-        current_hour = current_datetime.hour
         
         # Parse song data, get time difference between song end and current time
         spin_id = current_spin["id"]
         song_end_datetime = parser.parse(current_spin["end"])
         current_datetime = datetime.utcnow().replace(tzinfo=tz.UTC)
+        current_hour = current_datetime.hour
         time_difference = (song_end_datetime - current_datetime).total_seconds()
 
         if not (start_hour <= current_hour < end_hour):
