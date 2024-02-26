@@ -107,6 +107,16 @@ def get_session_key(token):
     session_key = session_key_element.text
     return session_key
 
+def get_sleep_duration(start_hour):
+    """Gets the remaining time in seconds until start_hour to sleep until"""
+    current_time = datetime.datetime.now()
+    desired_time = current_time.replace(hour=start_hour, minute=0, second=0, microsecond=0)
+    if desired_time < current_time:
+        # If the desired start time is already passed for today,
+        # set it for the next day
+        desired_time += datetime.timedelta(days=1)
+    return (desired_time - current_time).total_seconds()
+
 def update_np(session_key, artist, track, album=None, duration=None):
     """Performs API call to track.updateNowPlaying to indicate to Last.fm that the user has started listening to a new track
     
@@ -228,7 +238,7 @@ def setup():
 def run():
     """Execution to run when the user has already established a web service session"""
     
-    print("Last.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n")
+    print("\nSTART SUCCESSFUL\nLast.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n")
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
@@ -236,6 +246,7 @@ def run():
     while True:
         # Get most recent spin info from Spinitron
         current_spin = r.get("https://spinitron.com/api/spins?count=1", headers=spinitron_headers).json()["items"][0]
+        current_hour = current_datetime.hour
         
         # Parse song data, get time difference between song end and current time
         spin_id = current_spin["id"]
@@ -243,45 +254,45 @@ def run():
         current_datetime = datetime.utcnow().replace(tzinfo=tz.UTC)
         time_difference = (song_end_datetime - current_datetime).total_seconds()
 
-        # Check if a new song is playing
-        if (time_difference > 0) and (spin_id != last_spin_id):
-            miss_count = 0
+        if not (start_hour <= current_hour < end_hour):
+            sleep_duration = get_sleep_duration(start_hour)
+            print(f"OUTSIDE SCHEDULED SCROBBLING HOURS. Sleeping for next {sleep_duration} seconds...")
+            time.sleep(sleep_duration)
+        else:
+            # Check if a new song is playing
+            if (time_difference > 0) and (spin_id != last_spin_id):
+                miss_count = 0
 
-            print("Making Last.fm Now Playing request for new spin.")
-            update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
+                print("NEW SONG - Making Last.fm Now Playing request for new spin.")
+                update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
 
-            # Last.fm asks that we only scrobbly songs longer than 30 seconds
-            if current_spin["duration"] > 30:
-                current_hour = current_datetime.hour
-                
-                if start_hour <= current_hour < end_hour:
+                # Last.fm asks that we only scrobbly songs longer than 30 seconds
+                if current_spin["duration"] > 30:
                     # Idle until end of song, then make scrobble request
                     time.sleep(time_difference)
-                    print("Song finished playing. Making scrobble request.")
+                    print("SONG PLAYBACK FINISHED - Making scrobble request.")
                     request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
                 else:
-                    print("Current time is outside scrobble hours. Skipping scrobble.")
+                    too_short_str = f"Song length too short to scrobble. Waiting for {time_difference} seconds..."
+                    print(too_short_str)
+                    logging.info(too_short_str)
+                    time.sleep(time_difference) # Idle until end of current song
+                
+                time.sleep(5)
+
             else:
-                too_short_str = f"Song length too short to scrobble. Waiting for {time_difference} seconds..."
-                print(too_short_str)
-                logging.info(too_short_str)
-                time.sleep(time_difference) # Idle until end of current song
+                miss_count += 1 # Miss - loop has run without a new spin
+
+                # If miss occurs > 10 times in a row (approx 6 minutes), idle for 5 minutes before next loop
+                if miss_count > 10:
+                    miss_str = f"{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 5 minutes before next request."
+                    print(miss_str)
+                    logging.info(miss_str)
+                    time.sleep(270)
+
+                time.sleep(30)
             
-            time.sleep(5)
-
-        else:
-            miss_count += 1 # Miss - loop has run without a new spin
-
-            # If miss occurs > 10 times in a row (approx 6 minutes), idle for 5 minutes before next loop
-            if miss_count > 10:
-                miss_str = f"{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 5 minutes before next request."
-                print(miss_str)
-                logging.info(miss_str)
-                time.sleep(270)
-
-            time.sleep(30)
-        
-        last_spin_id = spin_id
+            last_spin_id = spin_id
 
 if __name__ == '__main__':
     # Ctrl+C handler
