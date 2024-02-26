@@ -1,4 +1,3 @@
 # TODO
 
-* Verbose script output for running in foreground.
-* Schedule timeperiods to not scrobble during
+* Verbose script output option for running in foreground.
