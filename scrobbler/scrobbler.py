@@ -274,6 +274,10 @@ def run():
     while True:
         # Get most recent spin info from Spinitron
         current_spin = r.get("https://spinitron.com/api/spins?count=1", headers=spinitron_headers).json()["items"][0]
+        spin_playlist = current_spin["playlist_id"]
+        current_playlist = r.get(f"https://spinitron.com/api/playlists/{spin_playlist}", headers=spinitron_headers).json()
+        current_category = current_playlist["category"]
+        print("Current category", current_category)
         
         # Parse song data, get time difference between song end and current time
         spin_id = current_spin["id"]
