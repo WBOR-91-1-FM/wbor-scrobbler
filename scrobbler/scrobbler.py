@@ -28,6 +28,33 @@ import xml.etree.ElementTree as ET
 
 LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/"
 
+class colors:
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    MAGENTA = '\033[95m'
+    CYAN = '\033[96m'
+    WHITE = '\033[97m'
+    RESET = '\033[0m'
+    
+ERROR_CODES = [16, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 16, 26, 29]
+# 16 : The service is temporarily unavailable, please try again.
+# 2 : Invalid service - This service does not exist
+# 3 : Invalid Method - No method with that name in this package
+# 4 : Authentication Failed - You do not have permissions to access the service
+# 5 : Invalid format - This service doesn't exist in that format
+# 6 : Invalid parameters - Your request is missing a required parameter
+# 7 : Invalid resource specified
+# 8 : Operation failed - Something else went wrong
+# 9 : Invalid session key - Please re-authenticate
+# 10 : Invalid API key - You must be granted a valid key by last.fm
+# 11 : Service Offline - This service is temporarily offline. Try again later.
+# 13 : Invalid method signature supplied
+# 16 : There was a temporary error processing your request. Please try again
+# 26 : Suspended API key - Access for your account has been suspended, please contact Last.fm
+# 29 : Rate limit exceeded - Your IP has made too many requests in a short period
+
 # Pull env variables
 load_dotenv(dotenv_path='/env/.env')
 lastfm_api_key = os.getenv("LASTFM_API_KEY")
@@ -236,9 +263,9 @@ def setup():
     return session_key
 
 def run():
-    """Execution to run when the user has already established a web service session"""
-    
-    print("\nSTART SUCCESSFUL\nLast.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n")
+    """Execution to run when the user has already established a web service session"""    
+    print(colors.GREEN + f"\nSCROBBLER STARTUP @ {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}")
+    print("Last.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n" + colors.RESET)
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
@@ -249,6 +276,8 @@ def run():
         
         # Parse song data, get time difference between song end and current time
         spin_id = current_spin["id"]
+        spin_song_title = current_spin["song"]
+        spin_artist = current_spin["artist"]
         song_start_datetime = parser.parse(current_spin["start"])
         song_start_hour = song_start_datetime.hour
         song_end_datetime = parser.parse(current_spin["end"])
@@ -259,7 +288,7 @@ def run():
         # If the current hour is outside of the defined schedule, sleep until the schedule starts
         if not ((start_hour <= current_hour < end_hour) or (start_hour > end_hour and (current_hour >= start_hour or current_hour < end_hour))):
             sleep_duration = get_sleep_duration(start_hour)
-            print(f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...")
+            print(colors.YELLOW + f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC..." + colors.RESET)
             time.sleep(sleep_duration)
         else:
             # If the current spin started playing at a time outside of the allowed scrobbling schedule, pass
@@ -270,15 +299,21 @@ def run():
                 if (time_difference > 0) and (spin_id != last_spin_id):
                     miss_count = 0
 
-                    print("NEW SONG - Making Last.fm Now Playing request for new spin.")
-                    update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
-
+                    print(f"NEW SONG : {spin_song_title} - {spin_artist}")
+                    np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
+                    if np_code in ERROR_CODES:
+                        print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
+                    else:
+                        print("Now Playing updated successfully")
                     # Last.fm asks that we only scrobbly songs longer than 30 seconds
                     if current_spin["duration"] > 30:
                         # Idle until end of song, then make scrobble request
                         time.sleep(time_difference)
-                        print("SONG PLAYBACK FINISHED - Making scrobble request.")
-                        request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
+                        scrobble_code = request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
+                        if scrobble_code in ERROR_CODES:
+                            print(colors.RED + f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}" + colors.RESET)
+                        else:
+                            print("Scrobbled successfully")
                     else:
                         too_short_str = f"Song length too short to scrobble. Waiting for {time_difference} seconds..."
                         print(too_short_str)
