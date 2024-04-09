@@ -10,6 +10,7 @@ In this fork, I Dockerized the original script and wrote a more streamlined setu
 * Admin login to the [Spinitron](https://spinitron.com/) account corresponding to the station that plans to scrobble.
 * Some kind of Linux server environment (WBOR is running it on a Virtual Private Server (VPS) at Digital Ocean using Ubuntu 22.04.3 at the time of this writing)
   * [Docker](https://www.docker.com/) version 24.0.7 (at the time of this writing -- your mileage may vary on newer versions)
+* `nano` or a similar command line text editor such as `vim`. If you choose to use something other than `nano`, you will need to modify the following commands accordingly.
 
 ## Installation & Setup
 
@@ -23,10 +24,10 @@ After you've gone through the following setup process once, you theoretically sh
 
     * Clones the repository, navigates to its folder, and opens the .env needed for editing in step 2.
 
-2. In .env, enter the following values after the `=` (without a space):
-    * LASTFM_API_KEY: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "API Key"
-    * LASTFM_API_SECRET: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "Shared Secret"
-    * SPINITRON_API_KEY: Found on the [Spinitron automation and API page](https://spinitron.com/station/automation/panel) under "API Key"
+2. In .env, enter the following values after a `=` (without a space):
+    * `LASTFM_API_KEY`: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "API Key"
+    * `LASTFM_API_SECRET`: Found on your [Last.fm API accounts page](https://www.last.fm/api/accounts) under "Shared Secret"
+    * `SPINITRON_API_KEY`: Found on the [Spinitron automation and API page](https://spinitron.com/station/automation/panel) under "API Key"
     * The resulting `.env` file shoud look something like the following:
 
         ```text
@@ -99,6 +100,17 @@ After you've gone through the following setup process once, you theoretically sh
    * Choose hours to start and stop scrobbling. These should be in 24-hour format. E.g. 1 PM should be entered as 13 for 13:00. No other integers other than 0-24 are permitted. Once done, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
    * You can now run `exit` to escape the container's CLI.
    * Profit! The change will take effect immediately.
+
+## Updating
+
+1. `docker kill scrobbler` - stops the currently running scrobbler if there is one
+2. `docker rm scrobbler` - deletes the previously built scrobbler container
+3. Navigate to the location of the scrobbler source files (e.g. the folder with the Dockerfile, wherever you cloned this repo to)
+4. `git stash` to save any local changes
+5. `git pull` to get the latest files
+6. `git stash pop` to restore any changes you saved in step 4
+7. `docker build --no-cache -t scrobbler .` to update the scrobbler Docker image
+8. `docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler --restart unless-stopped scrobbler` to create and run a new container
 
 ## Troubleshooting
 

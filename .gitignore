@@ -1,6 +1,4 @@
-# Virtual env folder
-venv/
-# Log file used for error logging
-*.log
+env/.env
+env/setup_done
 # Insync files
 *.insyncdl
