@@ -56,13 +56,13 @@ After you've gone through the following setup process once, you theoretically sh
     cd .. && docker build --no-cache -t scrobbler .
     ```
 
-    * Navigates to the repo's root folder and creates a Docker image titled `scrobbler`.
-        * You are free to give the image a title other than `scrobbler` but note that you will need to adjust the code in the following steps accordingly.
+    * Navigates to the repo's root folder and creates a Docker image tagged/titled `scrobbler`.
+        * You are free to give the image a tag/title other than `scrobbler` but note that you will need to adjust the code in the following steps accordingly.
 
 5. Assuming the image was built successfully, you can now spin up a container to complete setup. Run:
 
     ```text
-    docker run -v "$(pwd)"/env:/env -p 4000:80 -i -t --name scrobbler --restart unless-stopped scrobbler
+    docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler --restart unless-stopped scrobbler
     ```
 
     * Creates and starts a container titled `scrobbler` in interactive terminal mode for the initial setup process. Same as above: you are free to give the container a title other than `scrobbler` but note that you will need to adjust the code in the following steps accordingly.
@@ -78,7 +78,6 @@ After you've gone through the following setup process once, you theoretically sh
 ### Start/Stop
 
 * To stop/start the script's container for any reason, run `docker stop scrobbler` and `docker start scrobbler` respectively.
-  * Scrobbling is started in the background by default. If you want to run it in the foreground to see realtime output from the script (to see what's happening), run `docker start -i scrobbler`. NOTE: once you've started `scrobbler` in the foreground, the only way to hide its output again is to stop the process and start it again without the `-i` flag.
 * Like mentioned in part 4 of "Installation & Setup," in the case of a server reboot or a script failure, the container `scrobbler` will immediately restart without needing to run through the setup process again.
 
 ### Changing the Scrobble Schedule
@@ -97,7 +96,7 @@ After you've gone through the following setup process once, you theoretically sh
    nano schedule.json
    ```
 
-   * Choose hours to start and stop scrobbling. These should be in 24-hour UTC format. E.g. 1 PM EST should be entered as 15 for 15:00 UTC. No other integers other than 0-24 are permitted. Once done, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
+   * Choose hours to START and STOP scrobbling. These should be in 24-hour UTC format. E.g. 1 PM EST should be entered as 15 for 15:00 UTC. No other integers other than 0-24 are permitted. Once done, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
    * You can now run `exit` to escape the container's CLI.
    * Profit! The change will take effect immediately.
 
@@ -110,8 +109,8 @@ After you've gone through the following setup process once, you theoretically sh
 5. `git stash` to save any local changes
 6. `git pull` to get the latest files
 7. `git stash pop` to restore any changes you saved in step 4
-8. `docker build --no-cache -t scrobbler .` to update the scrobbler Docker image
-9. `docker run -v "$(pwd)"/env:/env -p 4000:80 -t --name scrobbler --restart unless-stopped scrobbler` to create and run a new container
+8. `docker build --no-cache -t scrobbler .` to build the new scrobbler Docker image
+9. `docker run -v "$(pwd)"/env:/env -p 4000:80 -d --name scrobbler --restart unless-stopped scrobbler` to create and run a new container in the background from the new image. Change `-d` to `-it` to see realtime logs, but remember, you will need to delete and recreate the container again in order to run the container in detached (background) mode.
 
 ## Troubleshooting
 
