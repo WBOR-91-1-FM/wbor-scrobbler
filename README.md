@@ -45,7 +45,7 @@ After you've gone through the following setup process once, you theoretically sh
     ```
 
     * Navigates to the repo's assets folder and opens nano to modify the schdeule.
-    * **NOTE:** times are in UTC. Use a [conversion tool](https://www.worldtimebuddy.com/) to find your time zone in UTC.
+    * **NOTE:** times are 24-hour UTC. Use a [conversion tool](https://www.worldtimebuddy.com/) to find your time zone in UTC.
     * You are not locked in to this schedule and can [change it at a later date](#changing-the-scrobble-schedule) if you choose.
     * If you are content scrobbling 24 hours a day, press <kbd>ctrl</kbd> + <kbd>x</kbd> and move on to step #4.
     * If you are defining a custom schedule, change the start and end hour, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
@@ -62,7 +62,7 @@ After you've gone through the following setup process once, you theoretically sh
 5. Assuming the image was built successfully, you can now spin up a container to complete setup. Run:
 
     ```text
-    docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler --restart unless-stopped scrobbler
+    docker run -v "$(pwd)"/env:/env -p 4000:80 -i -t --name scrobbler --restart unless-stopped scrobbler
     ```
 
     * Creates and starts a container titled `scrobbler` in interactive terminal mode for the initial setup process. Same as above: you are free to give the container a title other than `scrobbler` but note that you will need to adjust the code in the following steps accordingly.
@@ -97,7 +97,7 @@ After you've gone through the following setup process once, you theoretically sh
    nano schedule.json
    ```
 
-   * Choose hours to start and stop scrobbling. These should be in 24-hour format. E.g. 1 PM should be entered as 13 for 13:00. No other integers other than 0-24 are permitted. Once done, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
+   * Choose hours to start and stop scrobbling. These should be in 24-hour UTC format. E.g. 1 PM EST should be entered as 15 for 15:00 UTC. No other integers other than 0-24 are permitted. Once done, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
    * You can now run `exit` to escape the container's CLI.
    * Profit! The change will take effect immediately.
 
@@ -111,7 +111,7 @@ After you've gone through the following setup process once, you theoretically sh
 6. `git pull` to get the latest files
 7. `git stash pop` to restore any changes you saved in step 4
 8. `docker build --no-cache -t scrobbler .` to update the scrobbler Docker image
-9. `docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler --restart unless-stopped scrobbler` to create and run a new container
+9. `docker run -v "$(pwd)"/env:/env -p 4000:80 -t --name scrobbler --restart unless-stopped scrobbler` to create and run a new container
 
 ## Troubleshooting
 
