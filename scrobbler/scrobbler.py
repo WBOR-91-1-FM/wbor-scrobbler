@@ -76,7 +76,7 @@ logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(name)-4s %(levelname)s \n%(message)s\n")
 
 def signal_handler(sig, frame):
-    print("\nCtrl+C pressed, aborting application. Goodbye!")
+    print(colors.RED + "\nCtrl+C pressed, aborting application. Goodbye!" + colors.RESET)
     sys.exit(0)
 
 def generate_signature(params):
