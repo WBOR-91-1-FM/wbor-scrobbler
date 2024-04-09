@@ -277,7 +277,6 @@ def run():
         spin_playlist = current_spin["playlist_id"]
         current_playlist = r.get(f"https://spinitron.com/api/playlists/{spin_playlist}", headers=spinitron_headers).json()
         current_category = current_playlist["category"]
-        # print("Current category", current_category)
         
         # Parse song data, get time difference between song end and current time
         spin_id = current_spin["id"]
@@ -305,7 +304,7 @@ def run():
                     if current_category != "Automation":
                         miss_count = 0
 
-                        print(colors.GREEN + "NEW SONG :" + colors.RESET + "f{spin_song_title} - {spin_artist}")
+                        print(colors.GREEN + "NEW SONG :" + colors.RESET + f"{spin_song_title} - {spin_artist}")
                         np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
                         if np_code in ERROR_CODES:
                             print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
