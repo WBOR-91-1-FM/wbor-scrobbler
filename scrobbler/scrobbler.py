@@ -263,8 +263,9 @@ def setup():
     return session_key
 
 def run():
-    """Execution to run when the user has already established a web service session"""    
-    print(colors.GREEN + f"\nSCROBBLER STARTUP @ {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}")
+    """Execution to run when the user has already established a web service session""" 
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(colors.GREEN + f"\nSCROBBLER STARTUP @ {timestamp}")
     print("Last.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n" + colors.RESET)
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests

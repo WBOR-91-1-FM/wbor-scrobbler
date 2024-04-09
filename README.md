@@ -105,12 +105,13 @@ After you've gone through the following setup process once, you theoretically sh
 
 1. `docker kill scrobbler` - stops the currently running scrobbler if there is one
 2. `docker rm scrobbler` - deletes the previously built scrobbler container
-3. Navigate to the location of the scrobbler source files (e.g. the folder with the Dockerfile, wherever you cloned this repo to)
-4. `git stash` to save any local changes
-5. `git pull` to get the latest files
-6. `git stash pop` to restore any changes you saved in step 4
-7. `docker build --no-cache -t scrobbler .` to update the scrobbler Docker image
-8. `docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler --restart unless-stopped scrobbler` to create and run a new container
+3. `docker rmi scrobbler` - deletes the previously built scrobbler iamge
+4. Navigate to the location of the scrobbler source files (e.g. the folder with the Dockerfile, wherever you cloned this repo to)
+5. `git stash` to save any local changes
+6. `git pull` to get the latest files
+7. `git stash pop` to restore any changes you saved in step 4
+8. `docker build --no-cache -t scrobbler .` to update the scrobbler Docker image
+9. `docker run -v "$(pwd)"/env:/env -p 4000:80 -it --name scrobbler --restart unless-stopped scrobbler` to create and run a new container
 
 ## Troubleshooting
 
