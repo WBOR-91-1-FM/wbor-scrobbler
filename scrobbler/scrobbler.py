@@ -302,6 +302,7 @@ def run():
                             print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
                         else:
                             print("Now Playing updated successfully. Waiting for end of song to scrobble...")
+                        
                         # Last.fm asks that we only scrobbly songs longer than 30 seconds
                         if current_spin["duration"] > 30:
                             # Idle until end of song, then make scrobble request
@@ -312,37 +313,37 @@ def run():
                             else:
                                 print("Scrobbled successfully!")
                         else:
-                            too_short_str = f"Song length too short to scrobble. Waiting for {time_difference} seconds..."
-                            print(too_short_str)
+                            print(f"Song length {current_spin["duration"]} is too short to scrobble. Waiting for {time_difference} seconds...")
                             time.sleep(time_difference) # Idle until end of current song
                         
                         time.sleep(5)
+                    else:
+                        print(colors.RED + "The playlist this spin belongs to has the category \"Automation\", skipping scrobble." + colors.RESET)
 
                 else:
                     miss_count += 1 # Miss - loop has run without a new spin
 
-                    # If miss occurs > 10 times in a row (approx 6 minutes), idle for 5 minutes before next loop
+                    # If miss occurs > 10 times in a row (approx 6 minutes), idle for 3 minutes before next loop
                     if miss_count > 10:
-                        miss_str = f"{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 5 minutes before next request."
+                        miss_str = f"{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request."
                         print(miss_str)
-                        time.sleep(270)
+                        time.sleep(180)
 
                     time.sleep(30)
                 
                 last_spin_id = spin_id
 
 if __name__ == '__main__':
-    # Ctrl+C handler
-    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler) # Ctrl+C handler
 
-    # Parse CLI args for --setup flag
+    # Parse for --setup flag
     cli_parser = argparse.ArgumentParser()
     cli_parser.add_argument("--setup", action="store_true", help="Run script in setup mode (when a web service session has not been established)")
     args = cli_parser.parse_args()
 
     # Check if necessary env vars are either not present or left as example value
     if (not (lastfm_api_key and lastfm_api_secret and spinitron_api_key)) or (any(all(char == 'x' for char in string.lower()) for string in [lastfm_api_key, lastfm_api_secret, spinitron_api_key])):
-        print("Please make sure you have set your LASTFM_API_KEY, LASTFM_API_SECRET, and SPINITRON_API_KEY values in the \".env\" file.")
+        print(colors.RED + "Please make sure you have set your LASTFM_API_KEY, LASTFM_API_SECRET, and SPINITRON_API_KEY values in the \".env\" file." + colors.RESET)
     else:
         if args.setup:
             # If setup flag was used, run setup, then set the obtained session key in the .env file and run()
@@ -354,12 +355,12 @@ if __name__ == '__main__':
                 print("LASTFM_SESSION_KEY automatically set in /env/.env\n")
                 sys.exit(0)
             else:
-                print("Setup was done previously. Aborting...")
+                print(colors.YELLOW + "Setup was done previously. Aborting..." + colors.RESET)
                 sys.exit(0)
         else:
             # Check if session key variable is not present or left as example value
             if (not lastfm_session_key) or all(char == 'x' for char in lastfm_session_key.lower()):
-                print("Please make sure you have set your LASTFM_SESSION_KEY value in the \".env\" file. If you have not yet established a web service session, please run the script in setup mode using the --setup argument.")
+                print(colors.YELLOW + "Please make sure you have set your LASTFM_SESSION_KEY value in the \".env\" file. If you have not yet established a web service session, please run the script in setup mode using the --setup argument." + colors.RESET)
                 sys.exit(0)
             else:
                 run()
