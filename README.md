@@ -69,7 +69,7 @@ After you've gone through the following setup process once, you theoretically sh
     * In the case of a server reboot or a script failure, the container `scrobbler` will immediately restart, and will continue to do so unless you explicitly stop the container (more below).
     * Maps to external port 4000 by default, however you can change this as needed depending on your installation environment.
 
-6. Navigate to the Last.fm url presented to you (in some terminals you can cmd + click the URL) and authorize the application by pressing "allow access." Return to the terminal and enter <kbd>y</kbd> followed by <kbd>enter</kbd>.
+6. Navigate to the Last.fm url presented to you (in some terminals you can <kbd>cmd</kbd> + <kbd>click</kbd> the URL) and authorize the application by pressing "allow access." Return to the terminal and enter <kbd>y</kbd> followed by <kbd>enter</kbd>.
 
 7. Following setup, the container `scrobbler` will immediately begin running in the background, so no further action is required!
 
@@ -78,7 +78,8 @@ After you've gone through the following setup process once, you theoretically sh
 ### Start/Stop
 
 * To stop/start the script's container for any reason, run `docker stop scrobbler` and `docker start scrobbler` respectively.
-* Like mentioned in part 4 of "Installation & Setup," in the case of a server reboot or a script failure, the container `scrobbler` will immediately restart without needing to run through the setup process again.
+  * **NOTE:** stopping the container may take 5-10 seconds.
+* Like mentioned in part 5 of "Installation & Setup," in the case of a server reboot or a script failure, the container `scrobbler` will immediately restart without needing to run the setup process again.
 
 ### Changing the Scrobble Schedule
 
@@ -98,14 +99,13 @@ After you've gone through the following setup process once, you theoretically sh
 
    * Choose hours to START and STOP scrobbling. These should be in 24-hour UTC format. E.g. 1 PM EST should be entered as 15 for 15:00 UTC. No other integers other than 0-24 are permitted. Once done, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
    * You can now run `exit` to escape the container's CLI.
-   * Profit! The change will take effect immediately.
 
 ## Updating
 
-1. `docker kill scrobbler` - stops the currently running scrobbler if there is one
-2. `docker rm scrobbler` - deletes the previously built scrobbler container
-3. `docker rmi scrobbler` - deletes the previously built scrobbler iamge
-4. Navigate to the location of the scrobbler source files (e.g. the folder with the Dockerfile, wherever you cloned this repo to)
+1. `docker kill scrobbler` - stops the currently running `scrobbler` if there is one
+2. `docker rm scrobbler` - deletes the previously built `scrobbler` container
+3. `docker rmi scrobbler` - deletes the previously built `scrobbler` iamge
+4. Navigate to the location of the `scrobbler` source files (e.g. the folder with the Dockerfile, wherever you cloned this repo to)
 5. `git stash` to save any local changes
 6. `git pull` to get the latest files
 7. `git stash pop` to restore any changes you saved in step 4
@@ -120,4 +120,4 @@ After you've gone through the following setup process once, you theoretically sh
     docker run -v "$(pwd)"/env:/env -p 4000:80 -d --name scrobbler --restart unless-stopped scrobbler
     ```
 
-  * Runs the container in the background this time since you've already gone through the initial setup process.
+  * Runs the container in the background since it is assumed you've already gone through the initial setup process.
