@@ -284,7 +284,7 @@ def run():
         # If the current hour is outside of the defined schedule, sleep until the schedule starts
         if not ((start_hour <= current_hour < end_hour) or (start_hour > end_hour and (current_hour >= start_hour or current_hour < end_hour))):
             sleep_duration = get_sleep_duration(start_hour)
-            print(colors.YELLOW + f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC..." + colors.RESET)
+            print(colors.YELLOW + f"\nOUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...\n" + colors.RESET)
             time.sleep(sleep_duration)
         else:
             # If the current spin started playing at a time outside of the allowed scrobbling schedule, pass
@@ -295,8 +295,8 @@ def run():
                 if (time_difference > 0) and (spin_id != last_spin_id):
                     if current_category != "Automation":
                         miss_count = 0
-
-                        print(colors.GREEN + "\nNEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
+                        print(timestamp)
+                        print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
                         np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
                         if np_code in ERROR_CODES:
                             print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
@@ -311,7 +311,7 @@ def run():
                             if scrobble_code in ERROR_CODES:
                                 print(colors.RED + f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}" + colors.RESET)
                             else:
-                                print("Scrobbled successfully!")
+                                print("✓ Scrobbled successfully!\n")
                         else:
                             duration = current_spin["duration"]
                             print(f"Song length {duration} is too short to scrobble. Waiting for {time_difference} seconds...")
@@ -319,7 +319,7 @@ def run():
                         
                         time.sleep(5)
                     else:
-                        print(colors.RED + "The playlist this spin belongs to has the category \"Automation\", skipping scrobble." + colors.RESET)
+                        print(colors.RED + f"The playlist this spin belongs ({spin_song_title} - {spin_artist}) to has the category \"Automation\", skipping scrobble." + colors.RESET)
 
                 else:
                     miss_count += 1 # Miss - loop has run without a new spin
