@@ -313,7 +313,8 @@ def run():
                             else:
                                 print("Scrobbled successfully!")
                         else:
-                            print(f"Song length {current_spin["duration"]} is too short to scrobble. Waiting for {time_difference} seconds...")
+                            duration = current_spin["duration"]
+                            print(f"Song length {duration} is too short to scrobble. Waiting for {time_difference} seconds...")
                             time.sleep(time_difference) # Idle until end of current song
                         
                         time.sleep(5)
