@@ -246,15 +246,15 @@ def setup():
     
     # Wait for user to confirm that they have authorized before proceeding
     confirmation = ''
-    print("Please enter 'y' to after you have authorized this application with your Last.fm account:")
+    print("Please enter 'y' and then press \"Enter\" after you have authorized this application with your Last.fm account:")
     while confirmation != 'y':
         confirmation = input()
         if confirmation.lower() != 'y':
-            print("Did not receive 'y' - aborting setup...")
+            print(colors.RED + "Did not receive 'y' - aborting setup..." + colors.RESET)
             sys.exit(0)
     
     session_key = get_session_key(token)
-    print("\nSuccess!")
+    print(colors.GREEN + "\nSuccess!" + colors.RESET)
     
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open('/env/setup_done', 'w') as setup_done_file:
