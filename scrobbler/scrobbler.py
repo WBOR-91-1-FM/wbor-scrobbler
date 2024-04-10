@@ -70,8 +70,12 @@ end_hour = config.get('end_hour')
 
 spinitron_headers={"Authorization": f"Bearer {spinitron_api_key}"}
 
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s - \n%(message)s\n')
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s  ',
+    datefmt='%d-%b-%y %H:%M:%S',
+    level=logging.INFO,
+    stream=sys.stdout
+    )
 
 def signal_handler(sig, frame):
     print(colors.RED + "\nCtrl+C pressed, aborting application. Goodbye!" + colors.RESET)
