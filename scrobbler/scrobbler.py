@@ -258,12 +258,13 @@ def setup():
 def run():
     """Execution to run when the user has already established a web service session""" 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp}")
+    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp}\n")
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
     last_spin_id = None
     while True:
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         # Get most recent spin info from Spinitron
         current_spin = r.get("https://spinitron.com/api/spins?count=1", headers=spinitron_headers).json()["items"][0]
         spin_playlist = current_spin["playlist_id"]
