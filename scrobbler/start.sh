@@ -16,4 +16,4 @@ if [ ! -e /env/setup_done ]; then
 fi
 
 # Assuming setup has been done, start the scrobbler
-exec python scrobbler.py
+exec python -u scrobbler.py

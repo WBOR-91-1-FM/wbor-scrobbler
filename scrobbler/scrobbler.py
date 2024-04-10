@@ -17,7 +17,6 @@ from datetime import datetime
 from dateutil import parser, tz
 from dotenv import load_dotenv, set_key
 import hashlib
-import logging
 import os
 import requests as r
 import signal
@@ -69,13 +68,6 @@ start_hour = config.get('start_hour')
 end_hour = config.get('end_hour')
 
 spinitron_headers={"Authorization": f"Bearer {spinitron_api_key}"}
-
-logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(funcName)s - %(message)s  ',
-    datefmt='%d-%b-%y %H:%M:%S',
-    level=logging.INFO,
-    stream=sys.stdout
-    )
 
 def signal_handler(sig, frame):
     print(colors.RED + "\nCtrl+C pressed, aborting application. Goodbye!" + colors.RESET)
@@ -231,7 +223,6 @@ def handle_lastfm_http_error(response, request_type):
         http_error_str += "\nCould not parse response data for more information."
     
     print(http_error_str)
-    logging.error(http_error_str)
 
 def setup():
     """Execution to run when the user has not established a web service session
@@ -268,7 +259,6 @@ def run():
     """Execution to run when the user has already established a web service session""" 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(colors.GREEN + f"\nSCROBBLER STARTUP @ {timestamp}")
-    logging.debug(f"Startup @ {timestamp}")
     print("Last.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n" + colors.RESET)
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
@@ -296,7 +286,6 @@ def run():
         if not ((start_hour <= current_hour < end_hour) or (start_hour > end_hour and (current_hour >= start_hour or current_hour < end_hour))):
             sleep_duration = get_sleep_duration(start_hour)
             print(colors.YELLOW + f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC..." + colors.RESET)
-            logging.info(f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...")
             time.sleep(sleep_duration)
         else:
             # If the current spin started playing at a time outside of the allowed scrobbling schedule, pass
@@ -309,14 +298,11 @@ def run():
                         miss_count = 0
 
                         print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
-                        logging.debug(f"NEW SONG : {spin_song_title} - {spin_artist}")
                         np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
                         if np_code in ERROR_CODES:
                             print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
-                            logging.error(f"Last.fm Now Playing request returned {np_code}")
                         else:
                             print("Now Playing updated successfully. Waiting for end of song to scrobble...")
-                            logging.debug("Now Playing updated successfully. Waiting for end of song to scrobble...")
                         # Last.fm asks that we only scrobbly songs longer than 30 seconds
                         if current_spin["duration"] > 30:
                             # Idle until end of song, then make scrobble request
@@ -324,14 +310,11 @@ def run():
                             scrobble_code = request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
                             if scrobble_code in ERROR_CODES:
                                 print(colors.RED + f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}" + colors.RESET)
-                                logging.error(f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}")
                             else:
                                 print("Scrobbled successfully!")
-                                logging.debug("Scrobbled successfully!")
                         else:
                             too_short_str = f"Song length too short to scrobble. Waiting for {time_difference} seconds..."
                             print(too_short_str)
-                            logging.info(too_short_str)
                             time.sleep(time_difference) # Idle until end of current song
                         
                         time.sleep(5)
@@ -343,7 +326,6 @@ def run():
                     if miss_count > 10:
                         miss_str = f"{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 5 minutes before next request."
                         print(miss_str)
-                        logging.info(miss_str)
                         time.sleep(270)
 
                     time.sleep(30)
