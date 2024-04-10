@@ -110,7 +110,7 @@ After you've gone through the following setup process once, you theoretically sh
 6. `git pull` to get the latest files
 7. `git stash pop` to restore any changes you saved in step 4
 8. `docker build --no-cache -t scrobbler .` to build the new scrobbler Docker image
-9. `docker run -v "$(pwd)"/env:/env -p 4000:80 -d --name scrobbler --restart unless-stopped scrobbler` to create and run a new container in the background from the new image. Change `-d` to `-it` to see realtime logs, but remember, you will need to delete and recreate the container again in order to run the container in detached (background) mode.
+9. `docker run -v "$(pwd)"/env:/env -p 4000:80 -d --name scrobbler --restart unless-stopped scrobbler` to create and run a new container in the background from the new image. Change `-d` to `-it` to start in interactive mode to see print statements/realtime logs, but remember, you will need to delete and recreate the container again in order to run the container in detached (background) mode.
 
 ## Troubleshooting
 

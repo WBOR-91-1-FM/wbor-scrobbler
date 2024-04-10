@@ -70,10 +70,8 @@ end_hour = config.get('end_hour')
 
 spinitron_headers={"Authorization": f"Bearer {spinitron_api_key}"}
 
-logging.basicConfig(level=logging.DEBUG,
-                    filename="app.log",
-                    filemode='w',
-                    format="%(asctime)s %(name)-4s %(levelname)s \n%(message)s\n")
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - \n%(message)s\n')
 
 def signal_handler(sig, frame):
     print(colors.RED + "\nCtrl+C pressed, aborting application. Goodbye!" + colors.RESET)
@@ -307,7 +305,7 @@ def run():
                         miss_count = 0
 
                         print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
-                        logging.debug(f"\nNEW SONG : {spin_song_title} - {spin_artist}")
+                        logging.debug(f"NEW SONG : {spin_song_title} - {spin_artist}")
                         np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
                         if np_code in ERROR_CODES:
                             print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
