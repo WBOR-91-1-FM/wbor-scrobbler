@@ -258,7 +258,7 @@ def setup():
 def run():
     """Execution to run when the user has already established a web service session""" 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp}\n")
+    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp}\n" + colors.RESET)
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
@@ -327,7 +327,7 @@ def run():
 
                     # If miss occurs > 10 times in a row (approx 6 minutes), idle for 3 minutes before next loop
                     if miss_count > 10:
-                        miss_str = f"{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request."
+                        miss_str = f"\n{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..."
                         print(miss_str)
                         time.sleep(180)
 
