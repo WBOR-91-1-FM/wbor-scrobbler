@@ -258,8 +258,7 @@ def setup():
 def run():
     """Execution to run when the user has already established a web service session""" 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(colors.GREEN + f"\nSCROBBLER STARTUP @ {timestamp}")
-    print("Last.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n" + colors.RESET)
+    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp}")
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
@@ -297,7 +296,7 @@ def run():
                     if current_category != "Automation":
                         miss_count = 0
 
-                        print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
+                        print(colors.GREEN + "\nNEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
                         np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
                         if np_code in ERROR_CODES:
                             print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
