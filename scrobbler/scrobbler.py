@@ -70,8 +70,8 @@ end_hour = config.get('end_hour')
 
 spinitron_headers={"Authorization": f"Bearer {spinitron_api_key}"}
 
-logging.basicConfig(level=logging.INFO,
-                    filename="error.log",
+logging.basicConfig(level=logging.DEBUG,
+                    filename="app.log",
                     filemode='w',
                     format="%(asctime)s %(name)-4s %(levelname)s \n%(message)s\n")
 
@@ -266,6 +266,7 @@ def run():
     """Execution to run when the user has already established a web service session""" 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     print(colors.GREEN + f"\nSCROBBLER STARTUP @ {timestamp}")
+    logging.debug(f"Startup @ {timestamp}")
     print("Last.fm Spinitron scrobbler now running. To stop, use `Ctrl+C`\n" + colors.RESET)
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
@@ -293,6 +294,7 @@ def run():
         if not ((start_hour <= current_hour < end_hour) or (start_hour > end_hour and (current_hour >= start_hour or current_hour < end_hour))):
             sleep_duration = get_sleep_duration(start_hour)
             print(colors.YELLOW + f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC..." + colors.RESET)
+            logging.info(f"OUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...")
             time.sleep(sleep_duration)
         else:
             # If the current spin started playing at a time outside of the allowed scrobbling schedule, pass
@@ -304,12 +306,15 @@ def run():
                     if current_category != "Automation":
                         miss_count = 0
 
-                        print(colors.GREEN + "NEW SONG :" + colors.RESET + f"{spin_song_title} - {spin_artist}")
+                        print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
+                        logging.debug(f"\nNEW SONG : {spin_song_title} - {spin_artist}")
                         np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
                         if np_code in ERROR_CODES:
                             print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
+                            logging.error(f"Last.fm Now Playing request returned {np_code}")
                         else:
-                            print("Now Playing updated successfully")
+                            print("Now Playing updated successfully. Waiting for end of song to scrobble...")
+                            logging.debug("Now Playing updated successfully. Waiting for end of song to scrobble...")
                         # Last.fm asks that we only scrobbly songs longer than 30 seconds
                         if current_spin["duration"] > 30:
                             # Idle until end of song, then make scrobble request
@@ -317,8 +322,10 @@ def run():
                             scrobble_code = request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
                             if scrobble_code in ERROR_CODES:
                                 print(colors.RED + f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}" + colors.RESET)
+                                logging.error(f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}")
                             else:
-                                print("Scrobbled successfully")
+                                print("Scrobbled successfully!")
+                                logging.debug("Scrobbled successfully!")
                         else:
                             too_short_str = f"Song length too short to scrobble. Waiting for {time_difference} seconds..."
                             print(too_short_str)
