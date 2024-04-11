@@ -296,7 +296,7 @@ def run():
                 if (time_difference > 0) and (spin_id != last_spin_id):
                     if current_category != "Automation":
                         miss_count = 0
-                        print(timestamp)
+                        print(f"\n{timestamp}")
                         print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
                         np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
                         if np_code in ERROR_CODES:
@@ -312,7 +312,7 @@ def run():
                             if scrobble_code in ERROR_CODES:
                                 print(colors.RED + f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}" + colors.RESET)
                             else:
-                                print("✓ Scrobbled successfully!\n")
+                                print("✓ Scrobbled successfully!")
                         else:
                             duration = current_spin["duration"]
                             print(f"Song length {duration} is too short to scrobble. Waiting for {time_difference} seconds...")
