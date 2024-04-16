@@ -13,7 +13,7 @@ to establish one. The session key should be entered into the .env file with the 
 LASTFM_SESSION_KEY.
 """
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil import parser, tz
 from dotenv import load_dotenv, set_key
 import hashlib
@@ -278,7 +278,7 @@ def run():
         song_start_datetime = parser.parse(current_spin["start"])
         song_start_hour = song_start_datetime.hour
         song_end_datetime = parser.parse(current_spin["end"])
-        current_datetime = datetime.now(datetime.UTC)
+        current_datetime = datetime.now(timezone.utc)
         current_hour = current_datetime.hour
         time_difference = (song_end_datetime - current_datetime).total_seconds()
 
