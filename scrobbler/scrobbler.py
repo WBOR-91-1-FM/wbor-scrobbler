@@ -258,7 +258,7 @@ def setup():
 def run():
     """Execution to run when the user has already established a web service session""" 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp}\n" + colors.RESET)
+    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp}" + colors.RESET)
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
@@ -270,6 +270,7 @@ def run():
         spin_playlist = current_spin["playlist_id"]
         current_playlist = r.get(f"https://spinitron.com/api/playlists/{spin_playlist}", headers=spinitron_headers).json()
         current_category = current_playlist["category"]
+        current_title = current_playlist["title"]
         
         # Parse song data, get time difference between song end and current time
         spin_id = current_spin["id"]
@@ -320,7 +321,7 @@ def run():
                         
                         time.sleep(5)
                     else:
-                        print(colors.RED + f"The playlist this spin belongs ({spin_song_title} - {spin_artist}) to has the category \"Automation\", skipping scrobble." + colors.RESET)
+                        print(colors.RED + f"\nSPIN SKIPPED\nThe playlist this spin ({spin_song_title} - {spin_artist}) belongs to ({current_title}) has the category {current_category}, skipping scrobble." + colors.RESET)
 
                 else:
                     miss_count += 1 # Miss - loop has run without a new spin
