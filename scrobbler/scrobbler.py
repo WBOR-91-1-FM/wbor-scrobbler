@@ -278,7 +278,7 @@ def run():
         song_start_datetime = parser.parse(current_spin["start"])
         song_start_hour = song_start_datetime.hour
         song_end_datetime = parser.parse(current_spin["end"])
-        current_datetime = datetime.utcnow().replace(tzinfo=tz.UTC)
+        current_datetime = datetime.now(datetime.UTC)
         current_hour = current_datetime.hour
         time_difference = (song_end_datetime - current_datetime).total_seconds()
 
@@ -327,7 +327,7 @@ def run():
 
                     # If miss occurs > 10 times in a row (approx 6 minutes), idle for 3 minutes before next loop
                     if miss_count > 10:
-                        miss_str = f"\n{miss_count} requests since last spin. Currently {-1*time_difference} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..."
+                        miss_str = f"\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..."
                         print(miss_str)
                         time.sleep(180)
 
