@@ -325,10 +325,11 @@ def run():
 
                 else:
                     miss_count += 1 # Miss - loop has run without a new spin
+                    print(colors.YELLOW + f"\n{timestamp} MISS" + colors.RESET)
 
                     # If miss occurs > 10 times in a row (approx 6 minutes), idle for 3 minutes before next loop
                     if miss_count > 10:
-                        miss_str = f"\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..."
+                        miss_str = colors.YELLOW + f"\n{timestamp}\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..." + colors.RESET
                         print(miss_str)
                         time.sleep(180)
 
