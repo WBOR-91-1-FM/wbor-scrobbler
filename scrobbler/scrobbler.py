@@ -297,7 +297,7 @@ def run():
                 if (time_difference > 0) and (spin_id != last_spin_id):
                     if current_category != "Automation":
                         miss_count = 0
-                        print(f"\n{timestamp}")
+                        print(f"\n{timestamp} -- {current_datetime}")
                         print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
                         np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
                         if np_code in ERROR_CODES:
@@ -313,7 +313,7 @@ def run():
                             if scrobble_code in ERROR_CODES:
                                 print(colors.RED + f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}" + colors.RESET)
                             else:
-                                print("✓ Scrobbled successfully!")
+                                print(f"✓ Scrobbled successfully at {timestamp} -- {current_datetime}")
                         else:
                             duration = current_spin["duration"]
                             print(f"Song length {duration} is too short to scrobble. Waiting for {time_difference} seconds...")
@@ -325,11 +325,11 @@ def run():
 
                 else:
                     miss_count += 1 # Miss - loop has run without a new spin
-                    print(colors.YELLOW + f"\n{timestamp} MISS" + colors.RESET)
+                    print(colors.YELLOW + f"\n{timestamp} -- {current_datetime} MISS" + colors.RESET)
 
                     # If miss occurs > 10 times in a row (approx 6 minutes), idle for 3 minutes before next loop
                     if miss_count > 10:
-                        miss_str = colors.YELLOW + f"\n{timestamp}\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..." + colors.RESET
+                        miss_str = colors.YELLOW + f"\n{timestamp} -- {current_datetime}\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..." + colors.RESET
                         print(miss_str)
                         time.sleep(180)
 
