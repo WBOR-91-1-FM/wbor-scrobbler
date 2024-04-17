@@ -315,7 +315,7 @@ def run():
                         if np_code in ERROR_CODES:
                             print(colors.RED + f"ERROR: Now Playing request returned {np_code}" + colors.RESET)
                         else:
-                            timestamp_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            timestamp_string = datetime.now().strftime("%H:%M:%S:%f")
                             print(f"Now Playing updated successfully at {timestamp_string}\nWaiting for the end of song to submit scrobble...")
                         
                         # Idle until end of song
@@ -327,6 +327,7 @@ def run():
                             if scrobble_code in ERROR_CODES:
                                 print(colors.RED + f"ERROR: playback finished but the scrobble request returned {scrobble_code}" + colors.RESET)
                             else:
+                                timestamp_string = datetime.now().strftime("%H:%M:%S:%f")
                                 print(f"✓ Scrobbled successfully at {timestamp_string}")
                         else:
                             print(f"SCROBBLE SKIPPED: {spin_song_title} has a length of {spin_duration}, which is too short to scrobble.")
@@ -338,7 +339,7 @@ def run():
                 # The spin ID is the same as the ID returned in the most recent request
                 else:
                     miss_count += 1
-                    print(colors.YELLOW + f"\n{timestamp_string}\nMISS #{miss_count}" + colors.RESET)
+                    # print(colors.YELLOW + f"\n{timestamp_string}\nMISS #{miss_count}" + colors.RESET)
 
                     # If a miss occurs > 10 times in a row, idle for 3 minutes before next loop
                     if miss_count > 10:
