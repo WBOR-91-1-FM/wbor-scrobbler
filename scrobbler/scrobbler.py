@@ -273,9 +273,10 @@ def run():
     print("|              91.1 FM              |")
     print("|             wbor.org              |")
     print("-------------------------------------")
-    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp_string}" + colors.RESET)
-    print(f"Scheduled to START scrobbling at : {start_hour}:00 UTC")
-    print(f"Scheduled to STOP scrobbling at  : {end_hour}:00 UTC")
+    print(colors.GREEN + f"STARTUP @ {timestamp_string}" + colors.RESET)
+    print(f"Schedule:")
+    print(f"START scrobbling at : {start_hour}:00 UTC")
+    print(f"STOP scrobbling at  : {end_hour}:00 UTC")
     print("-------------------------------------")
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
