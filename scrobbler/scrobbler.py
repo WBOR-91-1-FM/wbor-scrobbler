@@ -26,6 +26,7 @@ import json
 import xml.etree.ElementTree as ET
 
 LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/"
+SPINITRON_API_URL = "https://spinitron.com/api"
 
 class colors:
     RED = '\033[91m'
@@ -38,36 +39,38 @@ class colors:
     RESET = '\033[0m'
     
 ERROR_CODES = [16, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 16, 26, 29]
-# 16 : The service is temporarily unavailable, please try again.
-# 2 : Invalid service - This service does not exist
-# 3 : Invalid Method - No method with that name in this package
-# 4 : Authentication Failed - You do not have permissions to access the service
-# 5 : Invalid format - This service doesn't exist in that format
-# 6 : Invalid parameters - Your request is missing a required parameter
-# 7 : Invalid resource specified
-# 8 : Operation failed - Something else went wrong
-# 9 : Invalid session key - Please re-authenticate
-# 10 : Invalid API key - You must be granted a valid key by last.fm
-# 11 : Service Offline - This service is temporarily offline. Try again later.
-# 13 : Invalid method signature supplied
-# 16 : There was a temporary error processing your request. Please try again
-# 26 : Suspended API key - Access for your account has been suspended, please contact Last.fm
-# 29 : Rate limit exceeded - Your IP has made too many requests in a short period
+"""According to the Last.fm documentation:
+16 : The service is temporarily unavailable, please try again.
+2  : Invalid service - This service does not exist
+3  : Invalid Method - No method with that name in this package
+4  : Authentication Failed - You do not have permissions to access the service
+5  : Invalid format - This service doesn't exist in that format
+6  : Invalid parameters - Your request is missing a required parameter
+7  : Invalid resource specified
+8  : Operation failed - Something else went wrong
+9  : Invalid session key - Please re-authenticate
+10 : Invalid API key - You must be granted a valid key by last.fm
+11 : Service Offline - This service is temporarily offline. Try again later.
+13 : Invalid method signature supplied
+16 : There was a temporary error processing your request. Please try again
+26 : Suspended API key - Access for your account has been suspended, please contact Last.fm
+29 : Rate limit exceeded - Your IP has made too many requests in a short period
+"""
 
-# Pull env variables
+# Pull .env variables and set headers
 load_dotenv(dotenv_path='/env/.env')
 lastfm_api_key = os.getenv("LASTFM_API_KEY")
 lastfm_api_secret = os.getenv("LASTFM_API_SECRET")
 lastfm_session_key = os.getenv("LASTFM_SESSION_KEY")
 spinitron_api_key = os.getenv("SPINITRON_API_KEY")
+spinitron_headers={"Authorization": f"Bearer {spinitron_api_key}"}
 
+# Parse schedule
 with open('schedule.json', 'r') as f:
     config = json.load(f)
 
 start_hour = config.get('start_hour')
 end_hour = config.get('end_hour')
-
-spinitron_headers={"Authorization": f"Bearer {spinitron_api_key}"}
 
 def signal_handler(sig, frame):
     print(colors.RED + "\nCtrl+C pressed, aborting application. Goodbye!" + colors.RESET)
@@ -130,7 +133,7 @@ def get_session_key(token):
 
 def get_sleep_duration(start_hour):
     """Gets the remaining time in seconds until start_hour to sleep until"""
-    current_datetime = datetime.utcnow().replace(tzinfo=tz.UTC)
+    current_datetime = datetime.now(timezone.utc)
     desired_time = current_datetime.replace(hour=start_hour, minute=0, second=0, microsecond=0)
     if desired_time < current_datetime:
         # If the desired start time is already passed for today,
@@ -213,7 +216,7 @@ def handle_lastfm_http_error(response, request_type):
         response (requests.Response): Response object that is returned by an HTTP request. Should only be responses where response.ok is false (status code >= 400)
         request_type (str): A string indicating the source of the HTTP error ('NP' if it comes from an NP request, 'scrobble' if it comes from a scrobble request)
     """
-    http_error_str = f"An HTTP error occured while making a {request_type} request.\nHTTP error code {response.status_code}: {response.reason}"
+    http_error_str = colors.RED + f"An HTTP error occured while making a {request_type} request.\nHTTP error code {response.status_code}: {response.reason}" + colors.RESET
     try:
         # Get error info sent from last.fm if available
         root = ET.fromstring(response.content)
@@ -257,28 +260,32 @@ def setup():
 
 def run():
     """Execution to run when the user has already established a web service session""" 
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp}" + colors.RESET)
+    timestamp_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp_string}" + colors.RESET)
+    print(f"Scheduled to START scrobbling at {start_hour}:00 UTC")
+    print(f"Scheduled to STOP scrobbling at {end_hour}:00 UTC")
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
     last_spin_id = None
     while True:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
         # Get most recent spin info from Spinitron
-        current_spin = r.get("https://spinitron.com/api/spins?count=1", headers=spinitron_headers).json()["items"][0]
-        spin_playlist = current_spin["playlist_id"]
-        current_playlist = r.get(f"https://spinitron.com/api/playlists/{spin_playlist}", headers=spinitron_headers).json()
-        current_category = current_playlist["category"]
-        current_title = current_playlist["title"]
+        current_spin = r.get(f"{SPINITRON_API_URL}/spins?count=1", headers=spinitron_headers).json()["items"][0]
+        current_playlist = r.get(f"{SPINITRON_API_URL}/playlists/{current_spin["playlist_id"]}", headers=spinitron_headers).json()
+        current_playlist_title = current_playlist["title"]
+        current_playlist_category = current_playlist["category"]
         
         # Parse song data, get time difference between song end and current time
         spin_id = current_spin["id"]
         spin_song_title = current_spin["song"]
         spin_artist = current_spin["artist"]
+        spin_duration = current_spin["duration"]
+        
         song_start_datetime = parser.parse(current_spin["start"])
-        song_start_hour = song_start_datetime.hour
         song_end_datetime = parser.parse(current_spin["end"])
+        song_start_hour = song_start_datetime.hour
         current_datetime = datetime.now(timezone.utc)
         current_hour = current_datetime.hour
         time_difference = (song_end_datetime - current_datetime).total_seconds()
@@ -286,7 +293,7 @@ def run():
         # If the current hour is outside of the defined schedule, sleep until the schedule starts
         if not ((start_hour <= current_hour < end_hour) or (start_hour > end_hour and (current_hour >= start_hour or current_hour < end_hour))):
             sleep_duration = get_sleep_duration(start_hour)
-            print(colors.YELLOW + f"\nOUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...\n" + colors.RESET)
+            print(colors.YELLOW + f"\n{timestamp_string}\nOUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...\n" + colors.RESET)
             time.sleep(sleep_duration)
         else:
             # If the current spin started playing at a time outside of the allowed scrobbling schedule, pass
@@ -295,41 +302,47 @@ def run():
             else:
                 # Check if a new song is playing
                 if (time_difference > 0) and (spin_id != last_spin_id):
-                    if current_category != "Automation":
-                        miss_count = 0
-                        print(f"\n{timestamp} -- {current_datetime}")
+                    
+                    # TODO: make this user-definable in a new file
+                    if current_playlist_category != "Automation":
+                        print(f"\n{timestamp_string}")
                         print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
-                        np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=current_spin["duration"])
+                        
+                        miss_count = 0
+                        
+                        # Update now playing
+                        np_code = update_np(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], album=current_spin["release"], duration=spin_duration)
                         if np_code in ERROR_CODES:
-                            print(colors.RED + f"Last.fm Now Playing request returned {np_code}" + colors.RESET)
+                            print(colors.RED + f"ERROR: Now Playing request returned {np_code}" + colors.RESET)
                         else:
-                            print("Now Playing updated successfully. Waiting for end of song to scrobble...")
+                            timestamp_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                            print(f"Now Playing updated successfully at {timestamp_string}\nWaiting for the end of song to submit scrobble...")
+                        
+                        # Idle until end of song
+                        time.sleep(time_difference)
                         
                         # Last.fm asks that we only scrobbly songs longer than 30 seconds
-                        if current_spin["duration"] > 30:
-                            # Idle until end of song, then make scrobble request
-                            time.sleep(time_difference)
+                        if spin_duration > 30:
                             scrobble_code = request_scrobble(session_key=lastfm_session_key, artist=current_spin["artist"], track=current_spin["song"], timestamp=parser.parse(current_spin["end"]).timestamp(), album=current_spin["release"], duration=current_spin["duration"])
                             if scrobble_code in ERROR_CODES:
-                                print(colors.RED + f"PLAYBACK FINISHED - Scrobble request returned {scrobble_code}" + colors.RESET)
+                                print(colors.RED + f"ERROR: playback finished but the scrobble request returned {scrobble_code}" + colors.RESET)
                             else:
-                                print(f"✓ Scrobbled successfully at {timestamp} -- {current_datetime}")
+                                print(f"✓ Scrobbled successfully at {timestamp_string}")
                         else:
-                            duration = current_spin["duration"]
-                            print(f"Song length {duration} is too short to scrobble. Waiting for {time_difference} seconds...")
-                            time.sleep(time_difference) # Idle until end of current song
+                            print(f"SCROBBLE SKIPPED: {spin_song_title} has a length of {spin_duration}, which is too short to scrobble.")
                         
                         time.sleep(5)
                     else:
-                        print(colors.RED + f"\nSPIN SKIPPED\nThe playlist this spin ({spin_song_title} - {spin_artist}) belongs to ({current_title}) has the category {current_category}, skipping scrobble." + colors.RESET)
+                        print(colors.RED + f"\nSPIN SKIPPED\nThe playlist this spin belongs to ({current_playlist_title}) has the category {current_playlist_category}. Skipping scrobble." + colors.RESET)
 
+                # The spin ID is the same as the ID returned in the most recent request
                 else:
-                    miss_count += 1 # Miss - loop has run without a new spin
-                    print(colors.YELLOW + f"\n{timestamp} -- {current_datetime} MISS" + colors.RESET)
+                    miss_count += 1
+                    print(colors.YELLOW + f"\n{timestamp_string}\nMISS #{miss_count}" + colors.RESET)
 
-                    # If miss occurs > 10 times in a row (approx 6 minutes), idle for 3 minutes before next loop
+                    # If a miss occurs > 10 times in a row, idle for 3 minutes before next loop
                     if miss_count > 10:
-                        miss_str = colors.YELLOW + f"\n{timestamp} -- {current_datetime}\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..." + colors.RESET
+                        miss_str = colors.YELLOW + f"\n{timestamp_string}\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..." + colors.RESET
                         print(miss_str)
                         time.sleep(180)
 

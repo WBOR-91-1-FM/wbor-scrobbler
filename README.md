@@ -99,6 +99,7 @@ After you've gone through the following setup process once, you theoretically sh
 
    * Choose hours to START and STOP scrobbling. These should be in 24-hour UTC format. E.g. 1 PM EST should be entered as 15 for 15:00 UTC. No other integers other than 0-24 are permitted. Once done, press <kbd>ctrl</kbd> + <kbd>x</kbd> and then enter <kbd>y</kbd> then <kbd>enter</kbd> to save and exit.
    * You can now run `exit` to escape the container's CLI.
+   * Restart the container.
 
 ## Updating
 
