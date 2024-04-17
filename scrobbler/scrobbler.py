@@ -261,9 +261,22 @@ def setup():
 def run():
     """Execution to run when the user has already established a web service session""" 
     timestamp_string = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    print("-------------------------------------")
+    print("|                                   |")
+    print("|     #   #  ###    ###   ####      |")
+    print("|     #   #  #  #  #   #  #   #     |")
+    print("|     #   #  ###   #   #  ####      |")
+    print("|     # # #  #  #  #   #  #  #      |")
+    print("|      # #   ###    ###   #   #     |")
+    print("|                                   |")
+    print("|              91.1 FM              |")
+    print("|             wbor.org              |")
+    print("-------------------------------------")
     print(colors.GREEN + f"SCROBBLER STARTUP @ {timestamp_string}" + colors.RESET)
-    print(f"Scheduled to START scrobbling at {start_hour}:00 UTC")
-    print(f"Scheduled to STOP scrobbling at {end_hour}:00 UTC")
+    print(f"Scheduled to START scrobbling at : {start_hour}:00 UTC")
+    print(f"Scheduled to STOP scrobbling at  : {end_hour}:00 UTC")
+    print("-------------------------------------")
 
     # Loop - each iteration is a check to Spinitron for new song data. All paths have blocking of at least 5 seconds to avoid sending too many requests
     miss_count = 0
@@ -293,12 +306,13 @@ def run():
         # If the current hour is outside of the defined schedule, sleep until the schedule starts
         if not ((start_hour <= current_hour < end_hour) or (start_hour > end_hour and (current_hour >= start_hour or current_hour < end_hour))):
             sleep_duration = get_sleep_duration(start_hour)
-            print(colors.YELLOW + f"\n{timestamp_string}\nOUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...\n" + colors.RESET)
+            print(colors.YELLOW + f"\n---------{timestamp_string}---------\nOUTSIDE SCHEDULED SCROBBLING HOURS ({start_hour}:00-{end_hour}:00 UTC). Sleeping for next {sleep_duration} seconds until {start_hour}:00 UTC...\n" + colors.RESET)
             time.sleep(sleep_duration)
         else:
             # If the current spin started playing at a time outside of the allowed scrobbling schedule, pass
             if not ((start_hour <= song_start_hour < end_hour) or (start_hour > end_hour and (song_start_hour >= start_hour or song_start_hour < end_hour))):
-                time.sleep(30)
+                print(colors.YELLOW + f"\n---------{timestamp_string}---------\nCURRENT SPIN BEGAN OUTSIDE SCHEDULED SCROBBLING HOURS. Disregarding...\n" + colors.RESET)
+                time.sleep(15)
             else:
                 # Check if a new song is playing
                 if (time_difference > 0) and (spin_id != last_spin_id):
@@ -343,13 +357,15 @@ def run():
                     miss_count += 1
                     # print(colors.YELLOW + f"\n{timestamp_string}\nMISS #{miss_count}" + colors.RESET)
 
-                    # If a miss occurs > 10 times in a row, idle for 3 minutes before next loop
-                    if miss_count > 10:
-                        miss_str = colors.YELLOW + f"\n{timestamp_string}\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..." + colors.RESET
-                        print(miss_str)
-                        time.sleep(180)
+                    # In a perfect world, people spin in realtime, but in actuality, people get distracted and then batch-submit spins, which can lead to them being missed during this idle period.
+                    #
+                    # # If a miss occurs > 10 times in a row, idle for 3 minutes before next loop
+                    # if miss_count > 10:
+                    #     miss_str = colors.YELLOW + f"\n---------{{timestamp_string}---------{\n{miss_count} requests since last spin. Currently {-1*int(time_difference)} seconds overdue according to last spin's end time value. Waiting 3 minutes before next request..." + colors.RESET
+                    #     print(miss_str)
+                    #     time.sleep(180)
 
-                    time.sleep(30)
+                    time.sleep(15)
                 
                 last_spin_id = spin_id
 
