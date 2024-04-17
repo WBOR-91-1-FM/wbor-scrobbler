@@ -273,7 +273,7 @@ def run():
         
         # Get most recent spin info from Spinitron
         current_spin = r.get(f"{SPINITRON_API_URL}/spins?count=1", headers=spinitron_headers).json()["items"][0]
-        current_playlist = r.get(f"{SPINITRON_API_URL}/playlists/{current_spin["playlist_id"]}", headers=spinitron_headers).json()
+        current_playlist = r.get(f"{SPINITRON_API_URL}/playlists/{current_spin['playlist_id']}", headers=spinitron_headers).json()
         current_playlist_title = current_playlist["title"]
         current_playlist_category = current_playlist["category"]
         
