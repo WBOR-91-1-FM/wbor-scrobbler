@@ -321,7 +321,7 @@ def run():
                     # TODO: make this user-definable in a new file
                     if current_playlist_category != "Automation":
                         print(f"\n---------{timestamp_string}---------")
-                        print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_song_title} - {spin_artist}")
+                        print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_artist} - {spin_song_title}")
                         print(f"Spin ID: {spin_id}")
                         print(f"Spin Playlist: {current_playlist_title}")
                         
