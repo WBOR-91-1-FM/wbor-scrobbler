@@ -351,7 +351,7 @@ def run():
                         
                         time.sleep(5)
                     else:
-                        print(colors.RED + f"\nSPIN SKIPPED\nThe playlist this spin belongs to ({current_playlist_title}) has the category {current_playlist_category}. Skipping scrobble." + colors.RESET)
+                        print(colors.RED + f"\n---------{timestamp_string}---------\nSPIN SKIPPED - belongs to playlist ({current_playlist_title}) with category `{current_playlist_category}`." + colors.RESET)
 
                 # The spin ID is the same as the ID returned in the most recent request
                 else:
