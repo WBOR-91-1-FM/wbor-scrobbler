@@ -291,6 +291,9 @@ def run():
         current_playlist_title = current_playlist["title"]
         current_playlist_category = current_playlist["category"]
         
+        current_persona = r.get(f"{SPINITRON_API_URL}/personas/{current_playlist['persona_id']}", headers=spinitron_headers).json()
+        current_persona_name = current_persona["name"]
+        
         # Parse song data, get time difference between song end and current time
         spin_id = current_spin["id"]
         spin_song_title = current_spin["song"]
@@ -324,6 +327,7 @@ def run():
                         print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_artist} - {spin_song_title}")
                         print(f"Spin ID: {spin_id}")
                         print(f"Spin Playlist: {current_playlist_title}")
+                        print(f"Playlist Host: {current_persona_name}")
                         
                         miss_count = 0
                         
