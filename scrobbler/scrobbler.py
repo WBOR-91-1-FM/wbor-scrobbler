@@ -322,7 +322,7 @@ def run():
                 if (time_difference > 0) and (spin_id != last_spin_id):
                     
                     # TODO: make this user-definable in a new file
-                    if current_playlist_category != "Automation":
+                    if current_playlist_category and current_playlist_category != "Automation":
                         print(f"\n---------{timestamp_string}---------")
                         print(colors.GREEN + "NEW SONG: " + colors.RESET + f"{spin_artist} - {spin_song_title}")
                         print(f"Spin ID: {spin_id}")
