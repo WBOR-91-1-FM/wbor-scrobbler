@@ -11,8 +11,5 @@ COPY scrobbler /scrobbler
 # Install requirements
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 80 available to the world outside this container
-EXPOSE 80
-
 # Run start.sh after the container starts
 CMD ["sh", "/scrobbler/start.sh"]
