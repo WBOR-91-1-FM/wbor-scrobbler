@@ -1,6 +1,5 @@
 .env
 env.bak/
-env/
 env/.env
 env/setup_done
 # Insync files
