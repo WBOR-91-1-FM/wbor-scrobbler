@@ -24,7 +24,7 @@ run: stop
 		--log-opt max-size=30m \
 		--log-opt max-file=30 \
 		--name $(CONTAINER_NAME) \
-		-v "$(pwd)"/env:/env
+		-v "$(pwd)"/env:/env \
 		$(IMAGE_NAME)
 
 stop:
